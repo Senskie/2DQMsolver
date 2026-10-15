@@ -45,8 +45,6 @@ def GaussianWavePacket(x0: float = None, sigma_x: float = None, kx0:float = None
     psi0 /= np.sqrt(np.sum(np.abs(psi0) ** 2) * dx)
     return psi0
 
-psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, kx0 = k0)
-
 # Split-step Fourier method
 def SplitStepFourierMethod(psi: float = None, dt: float = None, Nx: int = None, Lx: float = None , npw=np):
     # Fourier space components
@@ -69,20 +67,24 @@ def SplitStepFourierMethod(psi: float = None, dt: float = None, Nx: int = None, 
     # we can skip this step for now since V = 0
     return psi
 
-psi = psi0.copy()
+if __name__ == '__main__':
+    psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, kx0 = k0)
+    psi = psi0.copy()
 
-for t in range(Nt):
-    psi = SplitStepFourierMethod(psi=psi, dt = dt, Lx = Lx, Nx = Nx)
-    # Visualization of wave packet evolution
-    if t % 500 == 0:
-        plt.figure(figsize=(8, 6))
-        Rho = np.abs(psi) ** 2
-        plt.plot(x * 1e9, Rho, color='hotpink', lw=2)
-        Rho_0 = np.abs(psi0) ** 2; plt.plot(x * 1e9, Rho_0, color='red', linestyle = '--', lw=2)
-        plt.title(f'Time step: {t}')
-        plt.xlabel(r'$x$ (nm)', fontsize=14)
-        plt.ylabel(r'Probability Density', fontsize=14)
-        plt.pause(1)  # Pause for 1 second
-        plt.close()
+    for t in range(Nt):
+        psi = SplitStepFourierMethod(psi=psi, dt = dt, Lx = Lx, Nx = Nx)
+        # Visualization of wave packet evolution
+        if t % 500 == 0:
+            plt.figure(figsize=(8, 6))
+            Rho = np.abs(psi) ** 2
+            plt.plot(x * 1e9, Rho, color='hotpink', lw=2)
+            Rho_0 = np.abs(psi0) ** 2; plt.plot(x * 1e9, Rho_0, color='red', linestyle = '--', lw=2)
+            plt.title(f'Time step: {t}')
+            plt.xlabel(r'$x$ (nm)', fontsize=14)
+            plt.ylabel(r'Probability Density', fontsize=14)
+            plt.pause(.75)  # Pause for half a second
+            plt.close()
 
-plt.show()
+    plt.show()
+
+
