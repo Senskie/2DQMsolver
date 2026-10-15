@@ -10,6 +10,11 @@ GaussianWavePacket = FreeParticle1D.GaussianWavePacket
 SplitStepFourierMethod = FreeParticle1D.SplitStepFourierMethod
 x, Lx, Nx, dt, Nt, k0 = FreeParticle1D.x, FreeParticle1D.Lx, FreeParticle1D.Nx, FreeParticle1D.dt, FreeParticle1D.Nt, FreeParticle1D.k0
 
+dx = Lx/Nx
+
+# Fourier space components
+kx = np.fft.fftfreq(Nx, dx) * 2 * np.pi
+
 # Video settings: frames per second (fps) and output file
 fps = 20
 output_path = "Output/animation.mp4"
@@ -20,14 +25,14 @@ steps_per_frame: int = 25
 simulation_fps = steps_per_frame * fps  # Simulation steps per second of video
 
 # Run the simulation and store the probability density once per video frame
-psi0 = GaussianWavePacket(x0=0e-7, sigma_x=60e-9, kx0=k0)
+psi0 = GaussianWavePacket(x0=0e-7, x = x, dx = dx, sigma_x=60e-9, kx0=k0)
 psi = psi0.copy()
 
 Rho_frames = []
 for step in range(Nt):
     if step % steps_per_frame == 0:
         Rho_frames.append(np.abs(psi) ** 2)
-    psi = SplitStepFourierMethod(psi=psi, dt=dt, Lx=Lx, Nx=Nx)
+    psi = SplitStepFourierMethod(psi=psi, dt=dt, x=x, dx=dx, kx=kx)
 Rho_frames = np.array(Rho_frames)
 
 nframe = len(Rho_frames)

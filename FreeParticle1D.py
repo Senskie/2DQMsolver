@@ -51,9 +51,6 @@ def GaussianWavePacket(x0, sigma_x, x, dx, kx0:float = 0, npw=np):
 
 psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, x = x, dx = dx, kx0 = k0)
 
-# Fourier space components
-kx = np.fft.fftfreq(Nx, dx) * 2 * np.pi
-
 def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
     """
     Calculate the propagation of a wave function using the SSFM methode.
@@ -96,6 +93,7 @@ def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
     return psi
 
 if __name__ == '__main__':
+    kx = np.fft.fftfreq(Nx, dx) * 2 * np.pi
     psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, kx0 = k0)
     psi = psi0.copy()
 
