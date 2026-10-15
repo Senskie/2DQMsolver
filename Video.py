@@ -1,5 +1,3 @@
-import os
-import importlib
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -18,10 +16,9 @@ kx = np.fft.fftfreq(Nx, dx) * 2 * np.pi
 # Video settings: frames per second (fps) and output file
 fps = 20
 output_path = "Output/animation.mp4"
-os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
 # Simulation steps shown per video frame (controls the playback speed)
-steps_per_frame: int = 25
+steps_per_frame: int = 50
 simulation_fps = steps_per_frame * fps  # Simulation steps per second of video
 
 # Run the simulation and store the probability density once per video frame
@@ -82,3 +79,4 @@ with tqdm() as progress:
     ani = animation.FuncAnimation(fig=fig, func=update, init_func=innit,
                                   frames=nframe, interval=1000 / fps, blit=True)
     ani.save(output_path, fps=fps, progress_callback=my_progress)
+    

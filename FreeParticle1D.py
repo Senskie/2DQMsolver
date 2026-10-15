@@ -92,6 +92,7 @@ def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
     # we can skip this step for now since V = 0
     return psi
 
+# If the user runs the file itself, make a brute visualisation so the video can be checked
 if __name__ == '__main__':
     kx = np.fft.fftfreq(Nx, dx) * 2 * np.pi
     psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, kx0 = k0)
@@ -108,7 +109,7 @@ if __name__ == '__main__':
             plt.title(f'Time step: {t}')
             plt.xlabel(r'$x$ (nm)', fontsize=14)
             plt.ylabel(r'Probability Density', fontsize=14)
-            plt.pause(.75)  # Pause for half a second
+            plt.pause(1)  # Pause for half a second
             plt.close()
 
     plt.show()
