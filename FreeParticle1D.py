@@ -11,14 +11,14 @@ k0 = 0
 # Grid parameters
 Lx: float = 1e-6  # Simulation domain size (meters)
 Nx: int = 1024  # Number of grid points
-dx = Lx / Nx  # Grid spacing
 x = np.linspace(-Lx / 2, Lx / 2, Nx)
+dx = Lx / Nx
 
 # Time parameters
 dt: float  = 3e-15  # Time step (seconds)
 Nt: int = 10001  # Number of time steps
 
-def GaussianWavePacket(x0: float = None, sigma_x: float = None, kx0:float = None, npw=np):
+def GaussianWavePacket(x0, sigma_x, x, dx, kx0:float = 0, npw=np):
     """
     Return a Gaussian wave packet at t = 0
 
@@ -28,6 +28,10 @@ def GaussianWavePacket(x0: float = None, sigma_x: float = None, kx0:float = None
         Initial position of the packet (meters)
     sigma_x : float
         Width of the Gaussian packet (meters)
+    Nx : int
+        Number of grid points
+    Lx : float
+        Simulation domain size (meters)
     kx0 : float
         Initial wave vector
     npw : module
@@ -45,11 +49,35 @@ def GaussianWavePacket(x0: float = None, sigma_x: float = None, kx0:float = None
     psi0 /= np.sqrt(np.sum(np.abs(psi0) ** 2) * dx)
     return psi0
 
-# Split-step Fourier method
-def SplitStepFourierMethod(psi: float = None, dt: float = None, Nx: int = None, Lx: float = None , npw=np):
-    # Fourier space components
-    kx = np.fft.fftfreq(Nx, dx) * 2 * np.pi
-    K2 = kx ** 2
+psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, x = x, dx = dx, kx0 = k0)
+
+# Fourier space components
+kx = np.fft.fftfreq(Nx, dx) * 2 * np.pi
+
+def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
+    """
+    Calculate the propagation of a wave function using the SSFM methode.
+
+    Parameters
+    ----------
+    psi : float
+        Initial wave function, before the time step
+    dt : float
+        Time step (seconds)
+    x : float
+        (meters)
+    dx : float
+        Distance step (meters)
+    kx : float
+        fourier space components ()
+    npw : module
+        NumPy wrapper to be used for calculations
+
+    Returns
+    -------
+    psi : float
+        Value of the propagated wave function, i.e. psi(t + dt)
+    """
 
     # (a) 1/2 Evolution for the potential energy in real space
     # we can skip this step for now since V = 0
@@ -58,7 +86,7 @@ def SplitStepFourierMethod(psi: float = None, dt: float = None, Nx: int = None, 
     psi_k = npw.fft.fft(psi)
     
     # (c) Full evolution for the kinetic energy in Fourier space
-    psi_k *= npw.exp(-1j * hbar * K2 * dt / (2 * m_e))
+    psi_k *= npw.exp(-1j * hbar * kx**2 * dt / (2 * m_e))
     
     # (d) Inverse Fourier transform
     psi = npw.fft.ifft(psi_k)
