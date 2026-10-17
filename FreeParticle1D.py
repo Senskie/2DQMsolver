@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import Potentials
 
 # Constants
 hbar = 1.0545718e-34  # Reduced Planck constant (Joule second)
@@ -52,24 +53,7 @@ def GaussianWavePacket(x0, sigma_x, x, dx, kx0:float = 0, npw=np):
 
 psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, x = x, dx = dx, kx0 = k0)
 
-def Potential(x, V0: float = 5e-6 * eV, width: float = 100e-9):
-    """
-    Return a Poschl-Teller potential well (J), centered in the domain
-
-    Parameters
-    ----------
-    V0 : float
-        Depth of the well (Joule)
-    width : float
-        Characteristic width of the well (meters)
-    """
-    x_mid = (x.max() + x.min()) / 2.
-    V = -V0 / np.cosh((x - x_mid) / width) ** 2
-    eV = 1.602176634e-19  # Joule
-    return V/eV
-
-
-def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
+def SplitStepFourierMethod(psi, dt, x, dx, kx, Potential, npw=np):
     """
     Calculate the propagation of a wave function using the SSFM methode.
 
@@ -93,7 +77,10 @@ def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
     psi : float
         Value of the propagated wave function, i.e. psi(t + dt)
     """
-    V = Potential(x)
+    if Potential == None:
+        V = 0
+    else:
+        V = Potential(x)
 
     # (a) 1/2 Evolution for the potential energy in real space
     psi *= npw.exp(-1j * V * dt / (2 * hbar))
@@ -114,11 +101,11 @@ def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
 # If the user runs the file itself, make a brute visualisation so the video can be checked
 if __name__ == '__main__':
     kx = np.fft.fftfreq(Nx, dx) * 2 * np.pi
-    psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, kx0 = k0)
+    psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, kx0 = k0, x = x, dx = dx)
     psi = psi0.copy()
 
     for t in range(Nt):
-        psi = SplitStepFourierMethod(psi=psi, dt = dt, Lx = Lx, Nx = Nx)
+        psi = SplitStepFourierMethod(psi=psi, dt = dt, x = x, dx = dx, kx = kx, Potential=None)
         # Visualization of wave packet evolution
         if t % 500 == 0:
             plt.figure(figsize=(8, 6))
