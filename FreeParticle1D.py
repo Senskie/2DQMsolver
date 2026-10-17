@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 # Constants
 hbar = 1.0545718e-34  # Reduced Planck constant (Joule second)
+eV = 1.60217646e-19 # Joules to Ev conversion rate
 m_e = 9.10938356e-31  # Mass of electron (kg)
 wavelength = 5e-9  # de Broglie wavelength (meters)
 k0 = 2 * np.pi / wavelength  # Wave number
