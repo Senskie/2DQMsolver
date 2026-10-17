@@ -6,6 +6,7 @@ import FreeParticle1D
 
 GaussianWavePacket = FreeParticle1D.GaussianWavePacket
 SplitStepFourierMethod = FreeParticle1D.SplitStepFourierMethod
+V = FreeParticle1D.Potential
 x, Lx, Nx, dt, Nt, k0 = FreeParticle1D.x, FreeParticle1D.Lx, FreeParticle1D.Nx, FreeParticle1D.dt, FreeParticle1D.Nt, FreeParticle1D.k0
 
 dx = Lx/Nx
@@ -39,12 +40,21 @@ Rho_0 = np.abs(psi0) ** 2
 fig = plt.figure(figsize=(12, 6))
 ax = fig.add_subplot(1, 1, 1)
 ax.set_xlim(x[0] * 1e9, x[-1] * 1e9)
-ax.set_ylim(0, 1.1 * Rho_0.max())
 ax.set_xlabel(r'$x$ (nm)', fontsize=14)
-ax.set_ylabel(r'Probability Density', fontsize=14)
 
-# Static reference: initial wave packet
-ax.plot(x * 1e9, Rho_0, color='red', linestyle='--', lw=2, label=r'$t = 0$')
+# Density axis: limit from the maximum over ALL frames, since a well can focus the packet
+ax.set_ylim(0, 1.1 * Rho_frames.max())
+ax.set_ylabel(r'Probability Density (1/m)', fontsize=14)
+
+# Potential on a second axis, in micro-eV
+ax2 = ax.twinx()
+ax2.plot(x * 1e9, V, color='red', linestyle='--', lw=2, label=r'$V(x)$')
+ax2.set_ylabel(r'$V(x)$ ($\mu$eV)', fontsize=14)
+ax2.set_ylim(1.1 * V.min(), -0.1 * V.min())
+
+# Static reference: initial wave packet an Potential
+# ax.plot(x * 1e9, Rho_0, color='red', linestyle='--', lw=2, label=r'$t = 0$')
+
 # Animated line: current wave packet
 (line,) = ax.plot([], [], color='hotpink', lw=2, label=r'$|\psi(x,t)|^2$')
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes, fontsize=14, va='top')

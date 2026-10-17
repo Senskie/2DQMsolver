@@ -51,6 +51,23 @@ def GaussianWavePacket(x0, sigma_x, x, dx, kx0:float = 0, npw=np):
 
 psi0 = GaussianWavePacket(x0 = 0e-7, sigma_x = 60e-9, x = x, dx = dx, kx0 = k0)
 
+def Potential(x, V0: float = 5e-6 * eV, width: float = 100e-9):
+    """
+    Return a Poschl-Teller potential well (J), centered in the domain
+
+    Parameters
+    ----------
+    V0 : float
+        Depth of the well (Joule)
+    width : float
+        Characteristic width of the well (meters)
+    """
+    x_mid = (x.max() + x.min()) / 2.
+    V = -V0 / np.cosh((x - x_mid) / width) ** 2
+    eV = 1.602176634e-19  # Joule
+    return V/eV
+
+
 def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
     """
     Calculate the propagation of a wave function using the SSFM methode.
@@ -75,9 +92,10 @@ def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
     psi : float
         Value of the propagated wave function, i.e. psi(t + dt)
     """
+    V = Potential(x)
 
     # (a) 1/2 Evolution for the potential energy in real space
-    # we can skip this step for now since V = 0
+    psi *= npw.exp(-1j * V * dt / (2 * hbar))
     
     # (b) Forward transform
     psi_k = npw.fft.fft(psi)
@@ -89,7 +107,7 @@ def SplitStepFourierMethod(psi, dt, x, dx, kx, npw=np):
     psi = npw.fft.ifft(psi_k)
     
     # (e) 1/2 Evolution for the potential energy in real space
-    # we can skip this step for now since V = 0
+    psi *= npw.exp(-1j * V * dt / (2 * hbar))
     return psi
 
 # If the user runs the file itself, make a brute visualisation so the video can be checked
